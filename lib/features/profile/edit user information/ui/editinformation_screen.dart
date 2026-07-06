@@ -17,11 +17,11 @@ class EditinformationScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        await context.read<ProfileScreenProvider>().init();
+        if (didPop) return;        
         if (context.mounted) {
           Navigator.pop(context, true);        
         }
+        await context.read<ProfileScreenProvider>().init();
       },
       child: Scaffold(
         appBar: AppBar(
