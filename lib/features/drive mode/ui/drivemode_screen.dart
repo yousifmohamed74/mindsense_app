@@ -114,25 +114,53 @@ class _DrivemodeScreenState extends State<DrivemodeScreen> {
                 },
               ),
               Spacer(),
-              Container(
-                width: double.infinity,
-                decoration:BoxDecoration(
-                  color: 
-                  Colors.red,
-                  borderRadius: BorderRadius.circular(20.r),
-                ), 
-                child: MaterialButton( 
-                  padding: EdgeInsets.all(8),
-                  onPressed:(){
-                    context.read<DrivemodeProvider>().stopFetching(context);
-                    Navigator.pop(context);                   
-                  },
-                  child: Text("Exit drive mode",style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color:Theme.of(context).colorScheme.onSecondary
-                  ),),                    
-                ),
+              Consumer<DrivemodeProvider>(
+                builder: (context, provider, _) {
+                  return Column(
+                    children: [
+                      if (provider.isAlerting) ...[
+                        Container(
+                          width: double.infinity,
+                          decoration:BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ), 
+                          child: MaterialButton( 
+                            padding: EdgeInsets.all(8),
+                            onPressed:(){
+                              provider.stopAlert();
+                            },
+                            child: Text("Stop Alert",style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color:Theme.of(context).colorScheme.onSecondary
+                            ),),                    
+                          ),
+                        ),
+                        SizedBox(height: 15.h,),
+                      ],
+                      Container(
+                        width: double.infinity,
+                        decoration:BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ), 
+                        child: MaterialButton( 
+                          padding: EdgeInsets.all(8),
+                          onPressed:(){
+                            provider.stopFetching(context);
+                            Navigator.pop(context);                   
+                          },
+                          child: Text("Exit drive mode",style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color:Theme.of(context).colorScheme.onSecondary
+                          ),),                    
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               SizedBox(height: 50.h,)
               

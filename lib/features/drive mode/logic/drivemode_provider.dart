@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class DrivemodeProvider extends ChangeNotifier {
   Map<String, dynamic> statusData = {};
@@ -11,11 +12,23 @@ class DrivemodeProvider extends ChangeNotifier {
   bool _isFetching = false; 
   CancelToken? _cancelToken;
 
+  bool isAlerting = false;
+  bool _hasAcknowledged = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void stopAlert() {
+    _audioPlayer.stop();
+    isAlerting = false;
+    _hasAcknowledged = true;
+    notifyListeners();
+  }
+
   Future<void> startFetching() async {
     
     if (_isFetching) return;
     _isFetching = true;
     isFinished = false;
+    _hasAcknowledged = false;
 
     while (!isFinished) {
       log("drive mode start");
@@ -33,6 +46,10 @@ class DrivemodeProvider extends ChangeNotifier {
     isFinished = true;
     _cancelToken?.cancel("Drive mode stopped"); 
     
+    _audioPlayer.stop();
+    isAlerting = false;
+    showedData.clear();
+    
     notifyListeners();
   }
 
@@ -43,7 +60,8 @@ class DrivemodeProvider extends ChangeNotifier {
     }
     try {
       final response = await Dio().get(
-        'http://10.42.0.1:5000/status',
+        //'http://10.42.0.1:5000/status',
+        'http://192.168.4.1:5000/status',
         cancelToken: cancelToken,
       );
 
@@ -64,6 +82,22 @@ class DrivemodeProvider extends ChangeNotifier {
 
         statusData = data;
         showedData.add(Map<String, dynamic>.from(statusData));
+        
+        final label = (data['label'] ?? '').toString();
+        if (label.contains('drowsy')) {
+          if (!isAlerting && !_hasAcknowledged) {
+            isAlerting = true;
+            _audioPlayer.setReleaseMode(ReleaseMode.loop);
+            _audioPlayer.play(AssetSource('audio/alert.ogg'));
+          }
+        } else {
+          if (isAlerting) {
+            _audioPlayer.stop();
+            isAlerting = false;
+          }
+          _hasAcknowledged = false;
+        }
+        
         notifyListeners();
       }
     } on DioException catch (e) {
