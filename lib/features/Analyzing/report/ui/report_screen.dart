@@ -117,7 +117,7 @@ class ReportScreen extends StatelessWidget {
                     }
                   ),
                   
-                  analyzingProvider.detectedEmotion=="Sad"?
+                  analyzingProvider.detectedEmotion=="Sad"||analyzingProvider.detectedEmotion=="Angry"?
                   Column(
                     children: [
                       SizedBox(height: 20.h,),
